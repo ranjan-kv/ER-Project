@@ -3,14 +3,11 @@ import mongoose from 'mongoose';
 const itemSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: [true, 'Please add a title'],
-        trim: true,
-        maxlength: [100, 'Title cannot be more than 100 characters']
+        required: true
     },
     description: {
         type: String,
-        required: [true, 'Please add a description'],
-        maxlength: [500, 'Description cannot be more than 500 characters']
+        required: true
     },
     status: {
         type: String,
@@ -27,10 +24,6 @@ const itemSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     }
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
 
-const Item = mongoose.model('Item', itemSchema);
-
-export default Item;
+export default mongoose.model('Item', itemSchema);

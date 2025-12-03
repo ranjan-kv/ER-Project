@@ -192,32 +192,28 @@ function DashboardContent() {
                         {filteredItems.map((item) => (
                             <div
                                 key={item._id}
-                                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group"
                             >
-                                <div className="flex justify-between items-start mb-3">
-                                    <h3 className="text-lg font-semibold text-gray-900 flex-1 pr-2">{item.title}</h3>
-                                    <span className={`px-2 py-1 rounded text-xs font-medium border ${priorityColors[item.priority]}`}>
-                                        {item.priority}
+                                <div className="flex justify-between items-start mb-4">
+                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.priority === 'high' ? 'bg-red-50 text-red-900 border-gray-200' :
+                                        item.priority === 'medium' ? 'bg-orange-50 text-orange-900 border-gray-200' :
+                                            'bg-gray-50 text-gray-900 border-gray-200'
+                                        }`}>
+                                        {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}
                                     </span>
-                                </div>
-                                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{item.description}</p>
-                                <div className="flex items-center justify-between">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColors[item.status]}`}>
-                                        {item.status}
-                                    </span>
-                                    <div className="flex space-x-2">
+                                    <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => openModal(item)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-1 text-gray-900 hover:text-black rounded-lg transition-colors"
                                             title="Edit"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
                                         <button
                                             onClick={() => handleDelete(item._id)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="p-1 text-gray-900 hover:text-red-600 rounded-lg transition-colors"
                                             title="Delete"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,6 +221,13 @@ function DashboardContent() {
                                             </svg>
                                         </button>
                                     </div>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                                <p className="text-gray-900 text-sm mb-4 line-clamp-2">{item.description}</p>
+                                <div className="flex items-center justify-between">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColors[item.status]}`}>
+                                        {item.status}
+                                    </span>
                                 </div>
                             </div>
                         ))}
@@ -304,42 +307,42 @@ function TaskModal({
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-red-50 border border-gray-200 text-red-600 px-4 py-3 rounded text-sm">
                             {error}
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-1">Title</label>
                         <input
                             type="text"
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                            placeholder="Enter task title"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all text-gray-900"
+                            placeholder="Task title"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-1">Description</label>
                         <textarea
                             required
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                            rows={4}
-                            placeholder="Enter task description"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all text-gray-900"
+                            rows={3}
+                            placeholder="Task details..."
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Status</label>
                             <select
                                 value={formData.status}
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all text-gray-900"
                             >
                                 <option value="pending">Pending</option>
                                 <option value="in-progress">In Progress</option>
@@ -348,11 +351,11 @@ function TaskModal({
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Priority</label>
                             <select
                                 value={formData.priority}
                                 onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all text-gray-900"
                             >
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
@@ -365,16 +368,16 @@ function TaskModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                            className="flex-1 px-4 py-2 border border-gray-200 text-gray-900 rounded-md hover:bg-gray-50 transition-colors font-medium"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium disabled:opacity-50"
+                            className="flex-1 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors font-medium disabled:opacity-50"
                         >
-                            {loading ? 'Saving...' : item ? 'Update' : 'Create'}
+                            {loading ? 'Saving...' : 'Save Task'}
                         </button>
                     </div>
                 </form>

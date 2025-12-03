@@ -5,22 +5,17 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Validation schema
 const itemSchema = Joi.object({
-    title: Joi.string().min(1).max(100).required(),
-    description: Joi.string().min(1).max(500).required(),
-    status: Joi.string().valid('pending', 'in-progress', 'completed').optional(),
-    priority: Joi.string().valid('low', 'medium', 'high').optional()
+    title: Joi.string().required(),
+    description: Joi.string().required(),
+    status: Joi.string().valid('pending', 'in-progress', 'completed'),
+    priority: Joi.string().valid('low', 'medium', 'high')
 });
 
-// @route   GET /api/items
-// @desc    Get all items for logged-in user
-// @access  Private
 router.get('/', protect, async (req, res) => {
     try {
         const { search, status, priority } = req.query;
 
-        // Build query
         let query = { user: req.user._id };
 
         if (search) {
@@ -30,13 +25,8 @@ router.get('/', protect, async (req, res) => {
             ];
         }
 
-        if (status) {
-            query.status = status;
-        }
-
-        if (priority) {
-            query.priority = priority;
-        }
+        if (status) query.status = status;
+        if (priority) query.priority = priority;
 
         const items = await Item.find(query).sort({ createdAt: -1 });
         res.json(items);
@@ -46,9 +36,6 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
-// @route   GET /api/items/:id
-// @desc    Get single item
-// @access  Private
 router.get('/:id', protect, async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
@@ -57,7 +44,6 @@ router.get('/:id', protect, async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        // Make sure user owns item
         if (item.user.toString() !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
@@ -69,19 +55,20 @@ router.get('/:id', protect, async (req, res) => {
     }
 });
 
-// @route   POST /api/items
-// @desc    Create new item
-// @access  Private
 router.post('/', protect, async (req, res) => {
     try {
-        // Validate request body
         const { error } = itemSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
 
+        const { title, description, status, priority } = req.body;
+
         const item = await Item.create({
-            ...req.body,
+            title,
+            description,
+            status: status || 'pending',
+            priority: priority || 'medium',
             user: req.user._id
         });
 
@@ -92,12 +79,8 @@ router.post('/', protect, async (req, res) => {
     }
 });
 
-// @route   PUT /api/items/:id
-// @desc    Update item
-// @access  Private
 router.put('/:id', protect, async (req, res) => {
     try {
-        // Validate request body
         const { error } = itemSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
@@ -109,14 +92,15 @@ router.put('/:id', protect, async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        // Make sure user owns item
         if (item.user.toString() !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
+        const { title, description, status, priority } = req.body;
+
         item = await Item.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            { title, description, status, priority },
             { new: true, runValidators: true }
         );
 
@@ -127,9 +111,6 @@ router.put('/:id', protect, async (req, res) => {
     }
 });
 
-// @route   DELETE /api/items/:id
-// @desc    Delete item
-// @access  Private
 router.delete('/:id', protect, async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
@@ -138,12 +119,11 @@ router.delete('/:id', protect, async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        // Make sure user owns item
         if (item.user.toString() !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
-        await item.deleteOne();
+        await Item.findByIdAndDelete(req.params.id);
 
         res.json({ message: 'Item removed' });
     } catch (error) {

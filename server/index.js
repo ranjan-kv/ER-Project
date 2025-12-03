@@ -5,29 +5,22 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
 import itemRoutes from './routes/items.js';
 
-// Load env vars
 dotenv.config();
-
-// Connect to database
-connectDB();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-// Routes
+connectDB();
+
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK' });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
-});
-
-// Error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Something went wrong!' });

@@ -1,8 +1,7 @@
 import { LoginCredentials, RegisterCredentials, AuthResponse, User, Item, ItemInput } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
-// Helper function to get auth token
 const getAuthToken = (): string | null => {
     if (typeof window !== 'undefined') {
         return localStorage.getItem('token');
@@ -10,7 +9,6 @@ const getAuthToken = (): string | null => {
     return null;
 };
 
-// Helper function to handle API responses
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         const error = await response.json().catch(() => ({ message: 'An error occurred' }));
@@ -19,7 +17,6 @@ async function handleResponse<T>(response: Response): Promise<T> {
     return response.json();
 }
 
-// Auth API
 export const authApi = {
     register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
         const response = await fetch(`${API_URL}/auth/register`, {
@@ -48,9 +45,21 @@ export const authApi = {
         });
         return handleResponse<User>(response);
     },
+
+    updateProfile: async (data: { name: string; email: string }): Promise<AuthResponse> => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/auth/updatedetails`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse<AuthResponse>(response);
+    },
 };
 
-// Items API
 export const itemsApi = {
     getAll: async (params?: { search?: string; status?: string; priority?: string }): Promise<Item[]> => {
         const token = getAuthToken();
